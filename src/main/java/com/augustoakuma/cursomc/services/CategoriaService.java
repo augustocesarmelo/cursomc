@@ -3,12 +3,14 @@ package com.augustoakuma.cursomc.services;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.augustoakuma.cursomc.domain.Categoria;
 import com.augustoakuma.cursomc.repositories.CategoriaRepository;
+import com.augustoakuma.cursomc.services.exceptions.DataIntegrityException;
 import com.augustoakuma.cursomc.services.exceptions.ObjectNotFoundException;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CategoriaService {
@@ -35,6 +37,16 @@ public class CategoriaService {
 	public Categoria update(Categoria obj) {	
 		this.find(obj.getId());
 		return repo.save(obj);
+	}
+
+	public void delete(Integer id){
+		this.find(id);
+		try {
+			repo.deleteById(id);
+		} catch (DataIntegrityViolationException e) {
+			throw new DataIntegrityException("Não é possível excluir uma categoria que possui produtos.");
+		}
+		
 	}
 	
 }
