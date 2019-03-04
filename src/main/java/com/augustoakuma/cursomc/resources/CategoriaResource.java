@@ -2,6 +2,7 @@ package com.augustoakuma.cursomc.resources;
 
 import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.augustoakuma.cursomc.domain.Categoria;
+import com.augustoakuma.cursomc.dto.CategoriaDTO;
 import com.augustoakuma.cursomc.services.CategoriaService;
 
 @RestController
@@ -23,7 +25,7 @@ public class CategoriaResource {
 	private CategoriaService service;
 	
 	@RequestMapping(value="/{id}", method=RequestMethod.GET)
-	public ResponseEntity<?> find( @PathVariable Integer id ) {		
+	public ResponseEntity<Categoria> find( @PathVariable Integer id ) {		
 		Categoria obj = service.find(id);		
 		return ResponseEntity.ok().body(obj);	
 	}
@@ -44,9 +46,10 @@ public class CategoriaResource {
 	}
 	
 	@RequestMapping(method=RequestMethod.GET)
-	public List<Categoria> listar() {		
+	public ResponseEntity<List<CategoriaDTO>> listar() {		
 		List<Categoria> lista =	service.listarTodos();		
-		return lista;
+		List<CategoriaDTO> listaDTO = lista.stream().map(obj -> new CategoriaDTO(obj)).collect(Collectors.toList());
+		return ResponseEntity.ok().body(listaDTO) ;
 	}
 	
 	@RequestMapping(value="/{id}", method=RequestMethod.DELETE)
