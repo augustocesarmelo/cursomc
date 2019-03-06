@@ -1,7 +1,6 @@
 package com.augustoakuma.cursomc.resources;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,8 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.augustoakuma.cursomc.domain.Cliente;
-import com.augustoakuma.cursomc.domain.Cliente;
 import com.augustoakuma.cursomc.dto.ClienteDTO;
+import com.augustoakuma.cursomc.dto.ClienteNewDTO;
 import com.augustoakuma.cursomc.services.ClienteService;
 
 @RestController
@@ -67,6 +66,14 @@ public class ClienteResource {
 		Page<Cliente> lista =	service.listarPagina(pagina, qtdPorPagina, orderBy, direction);		
 		Page<ClienteDTO> listaDTO = lista.map(obj -> new ClienteDTO(obj));
 		return ResponseEntity.ok().body(listaDTO) ;
+	}
+	
+	@RequestMapping(method=RequestMethod.POST)
+	public ResponseEntity<Void> insert(@Valid @RequestBody ClienteNewDTO objDTO ){
+		Cliente obj = service.fromDTO(objDTO);		
+		obj = service.insert( obj );
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{i}").buildAndExpand(obj.getId()).toUri();
+		return ResponseEntity.created(uri).build();
 	}
 	
 	

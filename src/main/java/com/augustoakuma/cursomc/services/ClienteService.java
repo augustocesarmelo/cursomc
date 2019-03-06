@@ -10,10 +10,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
+import com.augustoakuma.cursomc.domain.Cidade;
 import com.augustoakuma.cursomc.domain.Cliente;
-import com.augustoakuma.cursomc.domain.Cliente;
+import com.augustoakuma.cursomc.domain.Endereco;
+import com.augustoakuma.cursomc.domain.enums.TipoCliente;
 import com.augustoakuma.cursomc.dto.ClienteDTO;
+import com.augustoakuma.cursomc.dto.ClienteNewDTO;
 import com.augustoakuma.cursomc.repositories.ClienteRepository;
+import com.augustoakuma.cursomc.repositories.EnderecoRepository;
 import com.augustoakuma.cursomc.services.exceptions.DataIntegrityException;
 import com.augustoakuma.cursomc.services.exceptions.ObjectNotFoundException;
 
@@ -22,6 +26,9 @@ public class ClienteService {
 	
 	@Autowired
 	private ClienteRepository repo;
+	
+	@Autowired
+	private EnderecoRepository enderecoRepository;
 		
 	public Cliente find(Integer id) {
 		Optional<Cliente> obj = repo.findById(id);
@@ -61,8 +68,31 @@ public class ClienteService {
 		return new Cliente(objDTO.getId(), objDTO.getNome(), objDTO.getEmail(), null, null);
 	}
 	
+	public Cliente fromDTO(ClienteNewDTO objDTO) {
+		Cliente cli =  new Cliente(null, objDTO.getNome(), objDTO.getEmail(), objDTO.getCpfOuCnpj(), TipoCliente.toEnum( objDTO.getTipoCliente() ) );
+		Cidade cidade = new Cidade(objDTO.getCidadeId(), null, null );
+		Endereco end = new Endereco(null, objDTO.getLogradouro(), objDTO.getNumero(), objDTO.getComplento(), objDTO.getBairro(), objDTO.getCep(), cli, cidade );
+		cli.getEnderecos().add(end);
+		cli.getTelefones().add(objDTO.getTelefone1());
+		if(objDTO.getTelefone2() != null) {
+			cli.getTelefones().add(objDTO.getTelefone2());
+		}
+		if(objDTO.getTelefone3() != null) {
+			cli.getTelefones().add(objDTO.getTelefone3());
+		}
+		return cli;
+	}
+	
 	private void updateData(Cliente banco, Cliente argumento) {
 		banco.setNome(argumento.getNome());
 		banco.setEmail(argumento.getEmail());
+	}
+	
+	public Cliente insert(Cliente obj) {
+		obj.setId(null);
+		obj = repo.save(obj);
+		
+		enderecoRepository.saveAll( obj.getEnderecos() );
+		return obj;		
 	}
 }
