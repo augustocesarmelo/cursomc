@@ -64,7 +64,7 @@ public class ClienteResource {
 			@RequestParam(value="orderBy", defaultValue="nome") String orderBy, 
 			@RequestParam(value="direction", defaultValue="ASC") String direction) {		
 		Page<Cliente> lista =	service.listarPagina(pagina, qtdPorPagina, orderBy, direction);		
-		Page<ClienteDTO> listaDTO = lista.map(obj -> new ClienteDTO(obj));
+		Page<ClienteDTO> listaDTO = lista.map(obj -> new ClienteDTO(obj));		
 		return ResponseEntity.ok().body(listaDTO) ;
 	}
 	
